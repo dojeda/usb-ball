@@ -1,0 +1,228 @@
+********************************************************************************
+*PELOTA                                                                        *
+*Un juego filosófico acerca de la naturaleza de la vida y las cosas en general.*
+*(Debia ser un título totalmente centrado)                                     *
+********************************************************************************
+Copyright (c) 2004 Durán & Ojeda Games
+
+********************************************************************************
+  1. CONTENIDO
+********************************************************************************
+
+	1. Contenido de este README.
+	2. Objetivo del juego.
+	3. Controles del juego.
+	4. Compilación e instalación del juego.
+	5. Informacion para desarrolladores.
+		5.1. Implementacion del juego
+		5.2. Problemas surgidos con respecto al reporte tecnico.
+	6. Créditos
+
+********************************************************************************
+  2. OBJETIVO DEL JUEGO
+********************************************************************************
+
+El objetivo del juego es preguntarte cuales son los confines de la vida, y que
+hay detras de esos confines. ¿Podrías llegar a un límite físico o espiritual
+en tu vida?, ¿Si lo hubiera, después de que atravieses ese límite, qué pasaría?.
+
+También se trata de simular una pelota rodando por una superficie totalmente
+configurable por el usuario. El juego simula en lo posible la física ordinaria
+de una pelota rodando por una superficie, con ciertas restricciones aplicadas
+para ahorrar un poco de tiempo (por lo tanto, no es una simulación fiel a la
+realidad). Podrias hacer caer la pelota de la superficie, pero no te lo vamos a
+permitir esta vez.
+
+********************************************************************************
+  3. CONTROLES DEL JUEGO
+********************************************************************************
+
+No es posible controlar directamente la pelota, pero estas teclas serviran de
+ayuda:
+
+Flecha arriba/abajo - Inclinan la superficie en el eje x
+Flecha izquierda/derecha - Inclinan la superficie en el eje y
+
+Si se mantiene el click izquierdo presionado durante el modo juego y
+se mueve horizontal o verticalmente el mouse se puede inclinar el
+plano.
+
+A/Z - Modifica la coordenada x de la camara. A la incrementa, Z la disminuye
+S/X - Modifica la coordenada y de la camara. S la incrementa, X la disminuye
+D/C - Modifica la coordenada z de la camara. D la incrementa, C la disminuye
+
+Tambien hay controles de la camara con el mouse para mayor facilidad:
+Mantener el Click derecho permite modificar la coordenada x de la camara si
+se mueve el mouse horizontalmente, si se mueve verticalmente se modifica la
+coordenada y de la posicion de la camara
+Mantener el Click del medio (sí, hacer click en el scroll del mouse), modifica
+la coordenada Z de la posicion de la camara con un movimiento vertical del
+mouse
+La apertura de la camara se controla haciendo scroll con el boton de scroll
+del mouse, que suele ser el boton del medio
+
+F1 - alternar entre modo juego y modo edicion de puntos de control
+F2 - alternar entre vista de superficie suave o vista wireframe
++/- - incrementar o decrementar la precision de la superficie o wireframe
+ESC - Cierra la ventana y sale del juego
+Barra espaciadora - Elabora una superficie al azar
+r - Devuelve la superficie a su forma plana
+
+Es posible alterar la superficie para que la pelota ruede de maneras novedosas.
+Para ello hay que hacer click sobre alguna esfera de control y mientras se tiene
+el boton del mouse presionado mover el mouse hacia arriba o hacia abajo.
+
+********************************************************************************
+  4. COMPILACION E INSTALACION DEL JUEGO
+********************************************************************************
+
+Con el paquete que descomprimió debió haber obtenido estos archivos:
+
+	- Makefile
+	- Makefile.win
+	- README
+	- data.c
+	- data.h
+	- main.c
+	- main.h
+	- mathutil.c
+	- mathutil.h
+	- physics.c
+	- physics.h
+	- renderer.c
+	- renderer.h
+	- resources.c
+	- resources.h
+
+Para compilar bajo Linux, debe ejecutar:
+
+  $ make
+
+Lo cual debe compilar perfectamente y producir un ejecutable llamado 'pelota',
+el cual debe ejecutar para comenzar el juego:
+
+  $ ./pelota
+
+Si desea compilar bajo Windows, y posee una version de GCC y las librerías de
+compilación de GLUT y OpenGL, ejecute:
+
+  $ make -f Makefile.win
+
+********************************************************************************
+  5. INFORMACION PARA DESARROLLADORES
+********************************************************************************
+
+  5.1. IMPLEMENTACION DEL JUEGO
+
+Las diversas partes del juego estan implementadas en varios archivos. A
+continuación presentaremos estos archivos junto con la parte que implementan:
+
+	- Makefile      Archivo Makefile para compilar con Linux
+	- Makefile.win  Archivo Makefile para compilar con Windows
+	- README        Este documento
+	- data.c        Creacion y destruccion de estructuras de datos.
+ 	                Operaciones basicas de estas estructuras.
+	- main.c        Punto de entrada del programa. Rutinas de interfaz 
+	                gráfica.
+	- mathutil.c    Utilidades matemáticas. Cálculo de splines.
+	                Multiplicación de matrices. Rotación de vectores.
+	- physics.c     Simulación física de la pelota rodando en una
+	                superficie.
+	- renderer.c    Visualización de la simulación en la pantalla.
+	- resources.c   Datos necesarios para la visualización de la
+	                simulación, como puntos de luz, propiedades de
+	                materiales, etc.
+
+Para fortuna suya, mucha de la información necesaria para entender la
+implementación del juego está contenida en los encabezados correspondientes a
+cada archivo. Cada encabezado contiene información detallada de lo que hace al
+principio del archivo, y recomendamos su lectura.
+
+  5.2. PROBLEMAS SURGIDOS CON RESPECTO AL REPORTE TECNICO
+
+En cuanto a los recursos que ofrece OpenGL para implementar el juego,
+solamente se utilizaron las primitivas siguientes:
+glMap2 para representar una superficie bezier
+glEnable, glDisable para activar evaluadores, añadir luces, normales, etc
+glMapGrid, glEvalMesh para renderizar la superficie spline
+
+Tanto la evaluación de un punto como el calculo de la normal, se
+hicieron calculando el B-Spline en vez de Bezier-Spline. Esto se debe
+a que se ahorra una transformación porque todos los puntos de control
+que están almacenados pertenecen al parche B-spline. La evaluacion de
+un punto de la superficie era una pieza importante para el juego, ya
+que la física y movimiento de la pelota se apega a la forma de la
+superficie. Este "evaluador" no esta relacionado con el evaluador de
+OpenGL ya que éste evalua superficies Bézier y sus resultados no son
+accesibles para el programador.
+
+La evaluación de un punto de la superficie B-spline consiste en un
+procedimiento que realiza las siguientes tareas:
+Primero se calcula a que parche pertenece el punto que se quiere
+evaluar. Recordemos que tenemos una gran superficie definida por 11x11
+puntos, la cual está compuesta de pequeños parches B-Spline definidos
+por 4x4 puntos.
+A continuación se calcula el parámetro u',v' del parche encontrado. Este
+parámetro no es igual que el u,v que se desea evaluar, ya que éste
+varía entre 0 y 1 por toda la superficie y el u',v' varia entre 0 y 1
+solamente en la pequeña superficie que se dibuja, la cual es 1/10 del
+tamaño de la superficie total.
+Finalmente se hacen los cálculos de evaluación de una superficie
+spline normalmente. Se utiliza la matriz asociada a un B-Spline.
+El cálculo de la normal si se apegó al reporte técnico, utilizando un
+epsilon de 0.00001 y utilizando la estrategia de dibujar un triangulo
+de vectores en la vecindad del punto.
+
+La transformación de B-Spline a Bézier no fue exactamente como se
+indicó en el reporte técnico. En el reporte solamente se especificó
+como transformar 4x4 puntos de control de un spline a otro, faltó
+indicar que para dibujar el parche es necesario tomar los subparches
+de la superficie y transformar los puntos de control de éstos, para
+luego moverse al siguiente parche y repetir la transformación. Los
+puntos de control al borde de los parches eran comunes para parches
+contiguos.
+
+Se presentaron algunos problemas menores para renderizar la
+superficie, ya que al utilizar los evaluadores de openGL se obtenia
+una superficie cuyo material no reflejaba bien la luz y parecia estar
+volteada. El problema se resolvió simplemente invirtiendo puntos de
+control al renderizar un parche, de esta manera las normales que
+calculaba el evaluador si apuntaban a la direccion correcta y los
+resultados fueron satisfactorios.
+
+Para la parte física, el principal problema existente con respecto al reporte
+técnico publicado fue la correspondencia de los parámetros u, v con las
+coordenadas x, y, z del mundo, y del uso de la mano derecha o izquierda para
+determinar el sentido positivo de la rotación. Esto no fue especificado con
+claridad en el momento de entregar el reporte, y causó confusión a la hora de
+implementar, con problemas como: se inclina la superficie en un eje pero
+la pelota se mueve en otro eje, la pelota aceleraba en subidas y frenaba en
+bajadas, y otras cosas por el estilo.
+
+Una diferencia con el reporte tecnico entregado hace unas semanas es la forma
+como se proyecta la distancia recorrida por la pelota sobre la spline. Debido
+a que una aproximación iterativa iba a ser costosa, pues estos cálculos se
+deben hacer varias veces por segundo, utilizamos el siguiente método:
+
+Se hace, al igual que la fisica de la pelota, el mismo calculo para
+los planos ZY y XY. Para un plano obtenemos dos puntos: donde esta la
+pelota en el momento, y donde estará en el siguiente instante
+(sumandole la distancia que recorre) , y se saca el angulo que forma
+la linea que los une con el eje horizontal.  Luego se proyecta la
+distancia con ese ángulo sobre el eje horizontal (multiplicandolo por
+el coseno). De esta manera, se obtiene una aproximacion de la
+distancia que recorre la pelota sobre la spline.
+
+Este metodo por supuesto pierde fidelidad a medida que la pelota adquiere
+velocidad, pues la distancia en el eje horizontal entre ambos puntos se hace
+mas grande. Sin embargo, debido a las distancias y al margen de tiempo que
+utilizamos, consideramos que el método ofrece un poco más de realidad sin
+sacrificar velocidad en el cálculo.
+
+********************************************************************************
+  6. CREDITOS
+********************************************************************************
+
+  Programación:
+	- Ciro Durán  (Física del juego, renderer de la pantalla)
+	- David Ojeda (Superficies paramétricas, interfaz gráfica)
